@@ -83,6 +83,7 @@ describe Article do
     assert_equal "http://myblog.net/2004/06/01/article-3.rss", a.feed_url(:rss20)
   end
 
+
   it "test_create" do
     a = Article.new
     a.user_id = 1
@@ -598,6 +599,56 @@ describe Article do
     end
   end
 
+  describe "merging" do
+
+    before do
+      @article = Factory.create(:article, body: "Lorem ipsum dolor sit amet.")
+    end
+
+    it "has a merge_with reader" do
+      expect { @article.merge_with }.not_to raise_error
+    end
+
+    it "has a merge_with setter" do
+      @article.merge_with = 123
+      expect(@article.merge_with).to eq(123)
+    end
+
+    context "on merge" do
+
+      before do
+        @article.save!
+        @merge_article = Factory.create(:article, body: "Ut ac magna quis urna semper.")
+        @merge_comment = Factory.create(:comment, article: @merge_article)
+        @comment = Factory.create(:comment, article: @article)
+        @article.merge_with = @merge_article.id
+        @article.save!
+      end
+
+      it "removes the merged article" do
+        expect(Article.exists?(@merge_article.id)).to eq(false)
+      end
+
+      it "contains the merged article's text" do
+        expect(@article.body).to include "Ut ac magna quis urna semper."
+      end
+
+      it "contains the existing article's text" do
+        expect(@article.body).to include "Lorem ipsum dolor sit amet."
+      end
+
+      it "contains the merged article's comments" do
+        expect(@article.comments).to include @merge_comment
+      end
+
+      it "contains the existing article's comments" do
+        expect(@article.comments).to include @comment
+      end
+
+    end
+
+  end
+    
   describe "#get_or_build" do
     context "when no params given" do
       before(:each) do

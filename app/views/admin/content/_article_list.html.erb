@@ -1,7 +1,7 @@
 <%= render_void_table(@articles.size, 7)  %>
 <% for article in @articles %>
 <tr <%= alternate_class %>>
-  <td class='first'>
+  <td class='first article_name'>
     <%= link_to_edit h(article.title), article %>
     <%= show_actions article %>
   </td>
