@@ -48,7 +48,7 @@ class Article < Content
   before_create :set_defaults, :create_guid
   after_create :add_notifications
   before_save :set_published_at, :ensure_settings_type, :set_permalink
-  after_save :post_trigger, :keywords_to_tags, :shorten_url, :process_merge
+  after_save :post_trigger, :keywords_to_tags, :shorten_url
 
   scope :category, lambda {|category_id| {:conditions => ['categorizations.category_id = ?', category_id], :include => 'categorizations'}}
   scope :drafts, lambda { { :conditions => { :state => 'draft' }, :order => 'created_at DESC' } }
@@ -61,7 +61,6 @@ class Article < Content
 
   setting :password,                   :string, ''
 
-  attr_accessor :merge_with
 
   def initialize(*args)
     super
@@ -151,6 +150,13 @@ class Article < Content
     else
       format_url
     end
+  end
+
+  def merge_with!(other)
+    body     << other.body
+    comments << other.comments
+    save!
+    other.destroy
   end
 
   def permalink_url(anchor=nil, only_path=false)
@@ -467,15 +473,6 @@ class Article < Content
     to = from + 1.day unless day.blank?
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
-  end
-
-  def process_merge
-    if !merge_with.blank?
-      merge_article = Article.find(merge_with)
-      self.body << merge_article.body
-      self.comments << merge_article.comments
-      merge_article.destroy
-    end
   end
 
 end

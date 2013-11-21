@@ -605,15 +605,6 @@ describe Article do
       @article = Factory.create(:article, body: "Lorem ipsum dolor sit amet.")
     end
 
-    it "has a merge_with reader" do
-      expect { @article.merge_with }.not_to raise_error
-    end
-
-    it "has a merge_with setter" do
-      @article.merge_with = 123
-      expect(@article.merge_with).to eq(123)
-    end
-
     context "on merge" do
 
       before do
@@ -621,8 +612,7 @@ describe Article do
         @merge_article = Factory.create(:article, body: "Ut ac magna quis urna semper.")
         @merge_comment = Factory.create(:comment, article: @merge_article)
         @comment = Factory.create(:comment, article: @article)
-        @article.merge_with = @merge_article.id
-        @article.save!
+        @article.merge_with!(@merge_article)
       end
 
       it "removes the merged article" do
@@ -643,6 +633,10 @@ describe Article do
 
       it "contains the existing article's comments" do
         expect(@article.comments).to include @comment
+      end
+
+      it "saves the article" do
+        expect(@article.changed?).to eq(false)
       end
 
     end

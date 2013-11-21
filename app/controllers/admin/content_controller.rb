@@ -27,6 +27,13 @@ class Admin::ContentController < Admin::BaseController
     new_or_edit
   end
 
+  def merge
+    @article = Article.find(params[:id])
+    @merge_article = Article.find(params[:merge_with])
+    @article.merge_with!(@merge_article)
+    redirect_to action: 'index'
+  end
+
   def edit
     @article = Article.find(params[:id])
     unless @article.access_by? current_user
@@ -240,4 +247,5 @@ class Admin::ContentController < Admin::BaseController
   def setup_resources
     @resources = Resource.by_created_at
   end
+
 end
