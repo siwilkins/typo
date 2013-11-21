@@ -613,6 +613,7 @@ describe Article do
         @merge_comment = Factory.create(:comment, article: @merge_article)
         @comment = Factory.create(:comment, article: @article)
         @article.merge_with!(@merge_article)
+        @article.reload
       end
 
       it "removes the merged article" do
@@ -628,11 +629,11 @@ describe Article do
       end
 
       it "contains the merged article's comments" do
-        expect(@article.comments).to include @merge_comment
+        expect(@article.comment_ids).to include @merge_comment.id
       end
 
       it "contains the existing article's comments" do
-        expect(@article.comments).to include @comment
+        expect(@article.comment_ids).to include @comment.id
       end
 
       it "saves the article" do

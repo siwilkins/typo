@@ -153,8 +153,11 @@ class Article < Content
   end
 
   def merge_with!(other)
-    body     << other.body
-    comments << other.comments
+    self.body += other.body
+    other.comments.each do |comment|
+      comments << comment
+    end
+    other.comments(true)
     save!
     other.destroy
   end
